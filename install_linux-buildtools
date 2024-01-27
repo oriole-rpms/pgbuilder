@@ -1,0 +1,49 @@
+#!/bin/bash
+set -ex
+
+OS_VERSION=$(awk -F= '/^VERSION_ID/{print $2}' /etc/os-release | sed 's/\..*//;s/"//g')
+OS_SHORT_NAME=$(grep -q Rocky /etc/os-release && echo rhel || echo fedora)
+OS_OFFICIAL_NAME=$(grep -q Rocky /etc/os-release && echo redhat || echo fedora)
+
+dnf install -y --allowerasing curl dos2unix bc
+if grep -q Fedora /etc/os-release; then
+  dnf install -y m4 perl-generators docbook-style-xsl docbook-dtds
+else
+  if [ "${OS_VERSION}" -le 8 ]; then
+    DNFRHELOPTIONS="--enablerepo=powertools"
+  else
+    DNFRHELOPTIONS="--enablerepo=devel"
+  fi
+  dnf install -y epel-release
+fi
+dnf install -y --allowerasing coreutils-single grep readline-devel libicu-devel \
+   automake \
+   clang-devel \
+   e2fsprogs-devel \
+   krb5-devel \
+   libselinux-devel \
+   libuuid-devel \
+   libxml2-devel \
+   libxslt-devel \
+   llvm-devel \
+   lz4-devel \
+   openldap-devel \
+   openssl-devel \
+   pam-devel \
+   perl \
+   perl-ExtUtils-Embed \
+   python3-devel \
+   selinux-policy \
+   systemd-devel \
+   systemtap-sdt-devel \
+   tcl-devel \
+   flex \
+   bison
+BASEURL="https://download.postgresql.org/pub/repos/yum/common/${OS_OFFICIAL_NAME}/${OS_SHORT_NAME}-${OS_VERSION}-$(uname -m)/"
+RPMNAME=$(curl "${BASEURL}" 2>/dev/null | sed -n '/pgdg-srpm-macros/{s/[^>]*>//;s/<.*//;p}' | sort | tail -n1)
+echo ${BASEURL}/${RPMNAME}
+dnf install -y --nogpgcheck ${BASEURL}/${RPMNAME}
+dnf install -y --nogpgcheck rpmdevtools rpm-build
+
+dnf ${DNFRHELOPTIONS} install -y perl-IPC-Run hdf5 hdf5-devel
+dnf groupinstall -y "Development Tools"

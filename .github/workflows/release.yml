@@ -1,0 +1,46 @@
+name: Release workflow for tagged versions
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  pgbuilder-image:
+    strategy:
+      matrix:
+        include:
+          - distro: 'rockylinux'
+            release: '8'
+          - distro: 'rockylinux'
+            release: '9'
+          - distro: 'fedora'
+            release: '38'
+          - distro: 'fedora'
+            release: '39'
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@main
+
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: 'Build pgbuilder image'
+        run: |
+          docker build . --build-arg="DISTRO=${{ matrix.distro }}" --build-arg="DISTRO_RELEASE=${{ matrix.release }}" --tag builder
+          docker tag builder ghcr.io/oriole-rpms/pgbuilder:latest
+          docker tag builder ghcr.io/oriole-rpms/pgbuilder:${{ github.ref_name }}
+
+      - name: 'Tag'
+        run: |
+          docker tag builder ghcr.io/oriole-rpms/pgbuilder:${{ matrix.distro }}${{ matrix.release }}
+          docker tag builder ghcr.io/oriole-rpms/pgbuilder:${{ matrix.distro }}${{ matrix.release }}-${{ github.ref_name }}
+
+      - name: 'Push to ghcr.io'
+        run: docker push -a ghcr.io/oriole-rpms/pgbuilder

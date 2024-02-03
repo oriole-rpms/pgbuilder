@@ -43,7 +43,7 @@ BASEURL="https://download.postgresql.org/pub/repos/yum/common/${OS_OFFICIAL_NAME
 RPMNAME=$(curl "${BASEURL}" 2>/dev/null | sed -n '/pgdg-srpm-macros/{s/[^>]*>//;s/<.*//;p}' | sort | tail -n1)
 echo ${BASEURL}/${RPMNAME}
 dnf install -y --nogpgcheck ${BASEURL}/${RPMNAME}
-dnf install -y --nogpgcheck rpmdevtools rpm-build
+dnf install -y --nogpgcheck rpmdevtools rpm-build createrepo
 
 dnf ${DNFRHELOPTIONS} install -y perl-IPC-Run hdf5 hdf5-devel
 dnf groupinstall -y "Development Tools"

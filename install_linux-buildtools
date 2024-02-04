@@ -39,7 +39,8 @@ dnf install -y --allowerasing coreutils-single grep readline-devel libicu-devel 
    tcl-devel \
    flex \
    bison \
-   libcurl-devel
+   libcurl-devel \
+   which
 BASEURL="https://download.postgresql.org/pub/repos/yum/common/${OS_OFFICIAL_NAME}/${OS_SHORT_NAME}-${OS_VERSION}-$(uname -m)/"
 RPMNAME=$(curl "${BASEURL}" 2>/dev/null | sed -n '/pgdg-srpm-macros/{s/[^>]*>//;s/<.*//;p}' | sort | tail -n1)
 echo ${BASEURL}/${RPMNAME}

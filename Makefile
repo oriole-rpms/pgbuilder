@@ -2,13 +2,7 @@ AUTOMAKEVERSION ?= $(shell automake --version | sed -n '1{s/.* //;p}' | grep -oE
 
 all: install
 
-install: buildtools #bison flex
-
-bison:
-	./install_bison
-
-flex:
-	./install_flex
+install: buildtools
 
 buildtools: linux-buildtools
 

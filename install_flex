@@ -1,8 +1,0 @@
-#!/bin/bash
-FLEXVERSION=2.5.39
-cd $(mktemp -d)
-curl -L http://prdownloads.sourceforge.net/flex/flex-${FLEXVERSION}.tar.gz?download -o flex-$FLEXVERSION.tar.gz
-tar -xvzf flex-${FLEXVERSION}.tar.gz
-cd flex-${FLEXVERSION}
-./configure --prefix=/usr/local/flex
-make all install
